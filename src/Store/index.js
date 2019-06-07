@@ -27,41 +27,33 @@ export default new Vuex.Store({
   },
   actions: {
     signUserUp({commit}, payload) {
-      commit('setLoading', true)
-      commit('clearError')
-      let slug = null
-      let newUser = {
-        userName: payload.userName,
-          firstName: payload.firstName,
-          lastName: payload.firstName,
-          birthDate: payload.birthDate,
-          adress: payload.adress,
-          city: payload.city,
-          state: payload.state,
-          zip: payload.zip,
-          email: payload.email
-      }
-      console.log(payload)
-      if (payload.userName && payload.email && payload.password) {
+      return new Promise( (resolve, reject) => { 
+        commit('setLoading', true)
+        commit('clearError')
+        let slug = null
+        let newUser = {}
+        let newError = {
+          test: 'test',
+          message: 'User Name is already taken, please chose another.'
+        }
         slug = slugify(payload.userName, {
-          replacement: '-',
-          remove: /[$*_=~.()''!\-:@]/g,
-          lower: true
+        replacement: '-',
+        remove: /[$*_=~.()''!\-:@]/g,
+        lower: true
         })
-        console.log(slug)
         firebase.database().ref('users/' + slug).once('value', snapshot => {
           if (snapshot.exists()){
-            commit('setError', 'User Name is already taken, please chose another.')
-            console.log('user name exists')
-            return
+            console.log('name exists')
+            commit('setError', newError)
+            resolve()
           } else {
-            console.log('user does not exists')
+            console.log('user does not exist')
             firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
             .then(
               cred => {
                   newUser = {
                   userId: cred.user.uid,
-                  userName: payload.userName,
+                  userName: slug,
                   firstName: payload.firstName,
                   lastName: payload.firstName,
                   birthDate: payload.birthDate,
@@ -71,8 +63,19 @@ export default new Vuex.Store({
                   zip: payload.zip,
                   email: payload.email
                 }
+                console.log(newUser)
                 commit('setUser', newUser)
                 console.log('sign up complete')
+                firebase.database().ref('/users/' + slug).set(newUser)
+                  .then( () => {
+                  commit('setLoading', false)
+                  console.log('user profile uploaded')
+                  resolve()
+                })
+                .catch( error => {
+                  console.log(error)
+                  resolve()
+                })
               }
             )
             .catch(
@@ -80,22 +83,60 @@ export default new Vuex.Store({
                 commit('setLoading', false)
                 commit('setError', error)
                 console.log(error)
+                resolve()
               }
             )
-            firebase.database().ref('/users/' + slug).set(newUser)
-            .then( data => {
-              console.log(data)
-            })
-            .catch( error => {
-              console.log(error)
-            })
           }
         })
+      })
+      
+    },
+    signUserIn ({commit}, payload) {
+      return new Promise( (resolve, reject) => {
+        commit('setLoading', true)
+        commit('clearError')
+        firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+          .then( () => {
+              commit('setLoading', false)
+              resolve()  
+          })
+          .catch(
+            error => {
+              commit('setLoading', false)
+              commit('setError', error)
+              console.log(error)
+              resolve()  
+          }
+        )
         
-      }
+      })  
+    },
+    logout({commit}) {
+      firebase.auth().signOut()
+      .then(() => {
+        commit('setUser', null)
+      })
     }
+    // autoSignIn (payload){
+    //   firebase.database().ref('users').orderByChild('userId').equalTo(payload.uid).once("value", function(snapshot) {
+    //     console.log(snapshot.val());
+    //     snapshot.forEach(function(data) {
+    //         console.log(data.key);
+    //     });
+    // })
+      
+
+    // }
   },
   getters: {
-
+    user (state) {
+      return state.user
+    },
+    loading (state) {
+      return state.loading
+    },
+    error (state) {
+      return state.error
+    }
   }
 })

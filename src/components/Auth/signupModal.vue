@@ -88,8 +88,6 @@
 </template>
 
 <script>
-import firebase from 'firebase'
-
 export default {
   data: () => ({
     userName: '',
@@ -123,9 +121,9 @@ export default {
       'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
     ]
   }),
-  watch: {
-    menu (val) {
-      val && this.$nextTick(() => (this.$refs.picker.activePicker = 'YEAR'))
+  computed: {
+    error () {
+      return this.$store.getters.error
     }
   },
   methods: {
@@ -133,7 +131,7 @@ export default {
       const userProfile = {
         userName: this.userName,
         firstName: this.firstName,
-        lastName: this.firstName,
+        lastName: this.lastName,
         password: this.password,
         birthDate: this.birthDate,
         adress: this.adress,
@@ -142,11 +140,27 @@ export default {
         zip: this.zip,
         email: this.email
       }
-      this.$store.dispatch('signUserUp', userProfile)            
-                
+      if (this.email && this.password && this.userName) {
+        this.$store.dispatch('signUserUp', userProfile)
+          .then( () => {
+            if (this.error) {
+              console.log(this.error)
+              return this.feedback = this.error.message
+            } else {
+                return this.$router.replace('/dashboard')
+            }
+        })
+      } else {
+        return this.feedback = 'Please enter all required fields'
+      }
     },
     save (date) {
       this.$refs.menu.save(date)
+    }
+  },
+  watch: {
+    menu (val) {
+      val && this.$nextTick(() => (this.$refs.picker.activePicker = 'YEAR'))
     }
   }
 }

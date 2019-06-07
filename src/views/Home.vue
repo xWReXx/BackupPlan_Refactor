@@ -23,6 +23,7 @@
             <v-layout justify-center>
               <v-btn mt-15 to='/about' color='red' dark>Learn More</v-btn>
               <app-signUp></app-signUp>
+              <app-login></app-login>
             </v-layout>
           </v-flex>
         </v-layout>
