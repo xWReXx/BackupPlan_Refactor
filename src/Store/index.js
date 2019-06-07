@@ -30,6 +30,17 @@ export default new Vuex.Store({
       commit('setLoading', true)
       commit('clearError')
       let slug = null
+      let newUser = {
+        userName: payload.userName,
+          firstName: payload.firstName,
+          lastName: payload.firstName,
+          birthDate: payload.birthDate,
+          adress: payload.adress,
+          city: payload.city,
+          state: payload.state,
+          zip: payload.zip,
+          email: payload.email
+      }
       console.log(payload)
       if (payload.userName && payload.email && payload.password) {
         slug = slugify(payload.userName, {
@@ -38,37 +49,49 @@ export default new Vuex.Store({
           lower: true
         })
         console.log(slug)
-        firebase.database().ref('users/' + slug).once('value')
-          .then(data => {
-            console.log(data)
-          })
-        firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
-          .then(
-            cred => {
-              commit('setLoading', false)
-              console.log('succesfull')
-              const newUser = {
-                userId: cred.user.uid,
-                userName: payload.userName,
-                firstName: payload.firstName,
-                lastName: payload.firstName,
-                birthDate: payload.birthDate,
-                adress: payload.adress,
-                city: payload.city,
-                state: payload.state,
-                zip: payload.zip,
-                email: payload.email
+        firebase.database().ref('users/' + slug).once('value', snapshot => {
+          if (snapshot.exists()){
+            commit('setError', 'User Name is already taken, please chose another.')
+            console.log('user name exists')
+            return
+          } else {
+            console.log('user does not exists')
+            firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
+            .then(
+              cred => {
+                  newUser = {
+                  userId: cred.user.uid,
+                  userName: payload.userName,
+                  firstName: payload.firstName,
+                  lastName: payload.firstName,
+                  birthDate: payload.birthDate,
+                  adress: payload.adress,
+                  city: payload.city,
+                  state: payload.state,
+                  zip: payload.zip,
+                  email: payload.email
+                }
+                commit('setUser', newUser)
+                console.log('sign up complete')
               }
-              commit('setUser', newUser)
-            }
-          )
-          .catch(
-            error => {
-              commit('setLoading', false)
-              commit('setError', error)
+            )
+            .catch(
+              error => {
+                commit('setLoading', false)
+                commit('setError', error)
+                console.log(error)
+              }
+            )
+            firebase.database().ref('/users/' + slug).set(newUser)
+            .then( data => {
+              console.log(data)
+            })
+            .catch( error => {
               console.log(error)
-            }
-          )
+            })
+          }
+        })
+        
       }
     }
   },
