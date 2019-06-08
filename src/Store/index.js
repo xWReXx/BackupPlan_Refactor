@@ -116,17 +116,15 @@ export default new Vuex.Store({
       .then(() => {
         commit('setUser', null)
       })
+    },
+    autoSignIn ({commit}, payload){
+      firebase.database().ref('users').orderByChild('userId').equalTo(payload.uid).on("value", function(snapshot) {
+        snapshot.forEach( (data) => {
+          const newObj = data.val()
+          commit('setUser', newObj)
+        })
+    })
     }
-    // autoSignIn (payload){
-    //   firebase.database().ref('users').orderByChild('userId').equalTo(payload.uid).once("value", function(snapshot) {
-    //     console.log(snapshot.val());
-    //     snapshot.forEach(function(data) {
-    //         console.log(data.key);
-    //     });
-    // })
-      
-
-    // }
   },
   getters: {
     user (state) {
