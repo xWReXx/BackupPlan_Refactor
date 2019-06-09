@@ -15,6 +15,17 @@ export default new Vuex.Store({
     setUser (state, payload) {
       state.user = payload
     },
+    updateUserProfile(state, payload) {
+      console.log('saving profile changes in vuex')
+      state.user.firstName = payload.firstName
+      state.user.lastName = payload.lastName
+      state.user.birthDate = payload.birthDate
+      state.user.email = payload.email
+      state.user.address = payload.address
+      state.user.city = payload.city
+      state.user.state = payload.state
+      state.user.zip = payload.zip
+    },
     setLoading (state, payload) {
       state.loading = payload
     },
@@ -55,7 +66,7 @@ export default new Vuex.Store({
                   firstName: payload.firstName,
                   lastName: payload.lastName,
                   birthDate: payload.birthDate,
-                  adress: payload.adress,
+                  address: payload.address,
                   city: payload.city,
                   state: payload.state,
                   zip: payload.zip,
@@ -111,13 +122,41 @@ export default new Vuex.Store({
         commit('setUser', null)
       })
     },
-    autoSignIn ({commit}, payload){
+    autoSignIn ({commit, getters}, payload){
       firebase.database().ref('users').orderByChild('userId').equalTo(payload.uid).on("value", function(snapshot) {
         snapshot.forEach( (data) => {
           const newObj = data.val()
           commit('setUser', newObj)
+          console.log(getters.user)
         })
     })
+    },
+    saveProfileChanges({commit, getters}, payload) {
+      console.log('setting profile changes')
+      commit('setLoading', true)
+      commit('clearError')
+      const userName = getters.user.userName
+      const savedProfileChanges = {
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        birthDate: payload.birthDate,
+        email: payload.email,
+        address: payload.address,
+        city: payload.city,
+        state: payload.state,
+        zip: payload.zip
+      }
+      console.log('updating profile changes')
+      firebase.database().ref('users/' + userName).update(savedProfileChanges).then( () => {
+        commit('updateUserProfile', payload)
+        commit('setLoading', false)
+        console.log('profile changes sucess')
+      })
+      .catch( (error) => {
+        commit('setLoading', false)
+        commit('setError', error)
+        console.log(error)
+      })
     },
     uploadProfileImage ({getters}, payload) {
       let imageUrl
@@ -127,7 +166,8 @@ export default new Vuex.Store({
         })
         .then(downloadUrl => {
           imageUrl = downloadUrl
-          firebase.database().ref('users/' + getters.user.userName).update({profileImageUrl: imageUrl})
+          const userName = getters.user.userName
+          firebase.database().ref('users/' + userName).update({profileImageUrl: imageUrl})
         })
     }
   },

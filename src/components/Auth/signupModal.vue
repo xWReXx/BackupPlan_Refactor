@@ -58,7 +58,7 @@
               </v-menu>
             </v-flex>
             <v-flex xs12>
-              <v-text-field v-model='adress' label='Adress' required></v-text-field>
+              <v-text-field v-model='address' label='Address' required></v-text-field>
             </v-flex>
             <v-flex xs12>
               <v-text-field v-model='city' label='City' required></v-text-field>
@@ -94,7 +94,7 @@ export default {
     firstName: '',
     lastName: '',
     birthDate: '',
-    adress: '',
+    address: '',
     city: '',
     state: '',
     zip: '',
@@ -134,7 +134,7 @@ export default {
         lastName: this.lastName,
         password: this.password,
         birthDate: this.birthDate,
-        adress: this.adress,
+        address: this.address,
         city: this.city,
         state: this.state,
         zip: this.zip,

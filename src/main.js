@@ -6,10 +6,12 @@ import firebase from 'firebase'
 import './plugins/vuetify'
 import signupModal from  './components/Auth/signupModal'
 import loginModal from  './components/Auth/loginModal'
+import editProfileModal from  './components/User/editProfileModal'
 
 Vue.config.productionTip = false
 Vue.component('app-signUp', signupModal)
 Vue.component('app-login', loginModal)
+Vue.component('app-editProlfile', editProfileModal)
 
 new Vue({
   store,

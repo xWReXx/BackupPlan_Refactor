@@ -45,7 +45,7 @@
               </v-list-tile-action>
 
               <v-list-tile-content>
-                <v-list-tile-title>{{profile.adress}}</v-list-tile-title>
+                <v-list-tile-title>{{profile.address}}</v-list-tile-title>
                 <v-list-tile-sub-title>{{profile.city}}, {{profile.state}} {{profile.zip}}</v-list-tile-sub-title>
               </v-list-tile-content>
             </v-list-tile>
@@ -79,6 +79,7 @@
                     :multiple="false"
                     @change="detectFiles($event)"
                   />
+                  <app-editProlfile :profile='profile'></app-editProlfile>
                 </v-flex>
               </v-list-tile-content>
             </v-list-tile>
@@ -92,28 +93,28 @@
 <script>
 
 export default {
-  data: () => ({
-    fileName: '',
-  }),
-  computed: {
-      profile () {
-          return this.$store.getters.user
-      }
-  },
-  methods: {
-    selectFile () {
-      this.$refs.uploadInput.click()
-    },
-    detectFiles (e) {
-      let fileList = e.target.files || e.dataTransfer.files
-      Array.from(Array(fileList.length).keys()).map(x => {
-        const fileInfo = {
-            name: fileList[x].name,
-            file: fileList[x]
+    data: () => ({
+
+    }),
+    computed: {
+        profile () {
+            return this.$store.getters.user
         }
-        this.$store.dispatch('uploadProfileImage', fileInfo)
-      })
     },
+    methods: {
+        selectFile () {
+            this.$refs.uploadInput.click()
+        },
+        detectFiles (e) {
+            let fileList = e.target.files || e.dataTransfer.files
+            Array.from(Array(fileList.length).keys()).map(x => {
+            const fileInfo = {
+                name: fileList[x].name,
+                file: fileList[x]
+            }
+            this.$store.dispatch('uploadProfileImage', fileInfo)
+            })
+        },
     // upload (file) {
     //   this.fileName = file.name
     //   const fileInfo = {
@@ -122,7 +123,7 @@ export default {
     //   }
     //   this.$store.dispatch('uploadProfileImage', fileInfo)
     // }
-  },
+    }
 }
 </script>
 
