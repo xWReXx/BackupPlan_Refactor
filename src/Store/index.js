@@ -16,7 +16,6 @@ export default new Vuex.Store({
       state.user = payload
     },
     updateUserProfile(state, payload) {
-      console.log('saving profile changes in vuex')
       state.user.firstName = payload.firstName
       state.user.lastName = payload.lastName
       state.user.birthDate = payload.birthDate
@@ -122,17 +121,15 @@ export default new Vuex.Store({
         commit('setUser', null)
       })
     },
-    autoSignIn ({commit, getters}, payload){
+    autoSignIn ({commit}, payload){
       firebase.database().ref('users').orderByChild('userId').equalTo(payload.uid).on("value", function(snapshot) {
         snapshot.forEach( (data) => {
           const newObj = data.val()
           commit('setUser', newObj)
-          console.log(getters.user)
         })
     })
     },
     saveProfileChanges({commit, getters}, payload) {
-      console.log('setting profile changes')
       commit('setLoading', true)
       commit('clearError')
       const userName = getters.user.userName
@@ -146,16 +143,13 @@ export default new Vuex.Store({
         state: payload.state,
         zip: payload.zip
       }
-      console.log('updating profile changes')
       firebase.database().ref('users/' + userName).update(savedProfileChanges).then( () => {
         commit('updateUserProfile', payload)
         commit('setLoading', false)
-        console.log('profile changes sucess')
       })
       .catch( (error) => {
         commit('setLoading', false)
         commit('setError', error)
-        console.log(error)
       })
     },
     uploadProfileImage ({getters}, payload) {

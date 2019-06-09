@@ -144,7 +144,6 @@ export default {
         this.$store.dispatch('signUserUp', userProfile)
           .then( () => {
             if (this.error) {
-              console.log(this.error)
               return this.feedback = this.error.message
             } else {
                 return this.$router.replace('/dashboard')
