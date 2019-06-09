@@ -27,7 +27,7 @@ export default new Vuex.Store({
   },
   actions: {
     signUserUp({commit}, payload) {
-      return new Promise( (resolve, reject) => { 
+      return new Promise( (resolve) => { 
         commit('setLoading', true)
         commit('clearError')
         let slug = null
@@ -43,11 +43,9 @@ export default new Vuex.Store({
         })
         firebase.database().ref('users/' + slug).once('value', snapshot => {
           if (snapshot.exists()){
-            console.log('name exists')
             commit('setError', newError)
             resolve()
           } else {
-            console.log('user does not exist')
             firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
             .then(
               cred => {
@@ -55,25 +53,23 @@ export default new Vuex.Store({
                   userId: cred.user.uid,
                   userName: slug,
                   firstName: payload.firstName,
-                  lastName: payload.firstName,
+                  lastName: payload.lastName,
                   birthDate: payload.birthDate,
                   adress: payload.adress,
                   city: payload.city,
                   state: payload.state,
                   zip: payload.zip,
-                  email: payload.email
+                  email: payload.email,
+                  profileImageUrl: 'https://firebasestorage.googleapis.com/v0/b/backupplan-ab4c1.appspot.com/o/default-profile-pic.png?alt=media&token=9c25dd85-a2cb-4daf-bfd4-278ce580e368'
                 }
-                console.log(newUser)
                 commit('setUser', newUser)
-                console.log('sign up complete')
                 firebase.database().ref('/users/' + slug).set(newUser)
                   .then( () => {
                   commit('setLoading', false)
-                  console.log('user profile uploaded')
                   resolve()
                 })
                 .catch( error => {
-                  console.log(error)
+                  commit('setError', error)
                   resolve()
                 })
               }
@@ -82,7 +78,6 @@ export default new Vuex.Store({
               error => {
                 commit('setLoading', false)
                 commit('setError', error)
-                console.log(error)
                 resolve()
               }
             )
@@ -92,7 +87,7 @@ export default new Vuex.Store({
       
     },
     signUserIn ({commit}, payload) {
-      return new Promise( (resolve, reject) => {
+      return new Promise( (resolve) => {
         commit('setLoading', true)
         commit('clearError')
         firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
@@ -104,7 +99,6 @@ export default new Vuex.Store({
             error => {
               commit('setLoading', false)
               commit('setError', error)
-              console.log(error)
               resolve()  
           }
         )
@@ -124,6 +118,17 @@ export default new Vuex.Store({
           commit('setUser', newObj)
         })
     })
+    },
+    uploadProfileImage ({getters}, payload) {
+      let imageUrl
+      firebase.storage().ref('/' + getters.user.userName + '/profilePicture/' + payload.name).put(payload.file)
+        .then(uploadTaskSnapshot => {
+          return uploadTaskSnapshot.ref.getDownloadURL()
+        })
+        .then(downloadUrl => {
+          imageUrl = downloadUrl
+          firebase.database().ref('users/' + getters.user.userName).update({profileImageUrl: imageUrl})
+        })
     }
   },
   getters: {
