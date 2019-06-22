@@ -7,11 +7,15 @@ import './plugins/vuetify'
 import signupModal from  './components/Auth/signupModal'
 import loginModal from  './components/Auth/loginModal'
 import editProfileModal from  './components/User/editProfileModal'
+import editDonaitonModal from  './components/Donations/EditDonaitonModal'
+import addDonaitonModal from  './components/Donations/AddDonationModal'
 
 Vue.config.productionTip = false
 Vue.component('app-signUp', signupModal)
 Vue.component('app-login', loginModal)
 Vue.component('app-editProlfile', editProfileModal)
+Vue.component('app-editDonation', editDonaitonModal)
+Vue.component('app-addDonation', addDonaitonModal)
 
 new Vue({
   store,

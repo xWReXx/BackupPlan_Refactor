@@ -101,9 +101,16 @@ export default new Vuex.Store({
         commit('setLoading', true)
         commit('clearError')
         firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
-          .then( () => {
-              commit('setLoading', false)
-              resolve()  
+          .then((cred) => {
+            const userId = cred.user.uid
+            firebase.database().ref('users').orderByChild('userId').equalTo(userId).on("value", function(snapshot) {
+              snapshot.forEach( (data) => {
+                const newObj = data.val()
+                commit('setUser', newObj)
+              })
+            })
+            commit('setLoading', false)
+            resolve()  
           })
           .catch(
             error => {
@@ -122,12 +129,14 @@ export default new Vuex.Store({
       })
     },
     autoSignIn ({commit}, payload){
-      firebase.database().ref('users').orderByChild('userId').equalTo(payload.uid).on("value", function(snapshot) {
+      
+      let userId = payload.uid
+      firebase.database().ref('users').orderByChild('userId').equalTo(userId).on("value", function(snapshot) {
         snapshot.forEach( (data) => {
           const newObj = data.val()
-          commit('setUser', newObj)
+          commit('setUser', newObj) 
         })
-    })
+      })
     },
     saveProfileChanges({commit, getters}, payload) {
       commit('setLoading', true)
@@ -162,6 +171,34 @@ export default new Vuex.Store({
           imageUrl = downloadUrl
           const userName = getters.user.userName
           firebase.database().ref('users/' + userName).update({profileImageUrl: imageUrl})
+        })
+        .catch( (error) => {
+          commit('setLoading', false)
+          commit('setError', error)
+        })
+    },
+    addDonation({commit}, payload) {
+      const newDonation = {
+        adress: payload.adress,
+        city: payload.city,
+        state: payload.state,
+        pets: payload.pets,
+        isFamilyFriendly: payload.isFamilyFriendly,
+        hasPubTransport: payload.hasPubTransport,
+        laundromat: payload.laundromat,
+        hasKitchen: payload.hasKitchen,
+        occupancy: payload.occupancy,
+        zipcode: payload.zipcode,
+        owner: payload.owner
+      }
+      firebase.database().ref('/donations/').push(newDonation)
+        .then((data) => {
+          console.log('post success ' + data)
+        })
+        .catch( (error) => {
+          console.log(error)
+          commit('setLoading', false)
+          commit('setError', error)
         })
     }
   },
