@@ -10,7 +10,7 @@
           <v-container grid-list-md>
             <v-layout wrap>
               <v-flex xs12 sm6 md4>
-                <v-text-field v-model='adress' label='Adress*' required></v-text-field>
+                <v-text-field v-model='address' label='Address*' required></v-text-field>
               </v-flex>
               <v-flex xs12 sm6 md4>
                 <v-text-field v-model='city' label='City*' persistent-hint required></v-text-field>
@@ -65,7 +65,7 @@ export default {
 
   data: () => ({
     donateModal: false,
-    adress: '',
+    address: '',
     city: '',
     state: '',
     pets: false,
@@ -88,7 +88,7 @@ export default {
   methods: {
     onSubmit() {
         const newDonation = {
-            adress: this.adress,
+            address: this.address,
             city: this.city,
             state: this.state,
             pets: this.pets,

@@ -16,7 +16,7 @@
                   <div>
                     <span class='grey--text'>Number 10</span>
                     <br>
-                    <span>{{item.adress}}</span>
+                    <span>{{item.address}}</span>
                     <br>
                     <span>{{item.city + ' '}}</span>
                     <span>{{item.state + ', '}}</span>

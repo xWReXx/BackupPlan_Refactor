@@ -200,7 +200,7 @@ export default new Vuex.Store({
           const obj = data.val()
           for (let key in obj) {
             donations.push({
-              adress: obj[key].adress,
+              address: obj[key].address,
               city: obj[key].city,
               state: obj[key].state,
               pets: obj[key].pets,
@@ -217,32 +217,33 @@ export default new Vuex.Store({
           commit('setLoading', false)
           commit('setLoadedDonations', donations)
         })
-        .catch((error) => { 
-          console.log(error)
+        .catch((error) => {
           commit('setLoading', false)
+          commit('setError', error)
         })
     },
     loadMyDonations ({commit, getters}) {
       let myDonations = []
       commit('setLoading', true)
       const owner = getters.user.userName
-      console.log(owner + 'searching for donations')
       firebase.database().ref('donations').orderByChild('owner').equalTo(owner).on('value', function (snapshot) {
         snapshot.forEach((snapshotChild) => {
-          console.log('donations found')
           const snapshotValue = snapshotChild.val()
           myDonations.push(snapshotValue)
-          console.log(myDonations)
         })
         commit('setMyLoadedDonations', myDonations)
         commit('setLoading', false)
+      })
+      .catch((error) => {
+        commit('setLoading', false)
+        commit('setError', error)
       })
     },
     addDonation({commit}, payload) {
       let key
       let imageUrl
       const newDonation = {
-        adress: payload.adress,
+        address: payload.address,
         city: payload.city,
         state: payload.state,
         pets: payload.pets,
@@ -261,7 +262,6 @@ export default new Vuex.Store({
         })
         .then((key) => {
           const fileName = payload.image.name
-          console.log(fileName)
           const ext = fileName.slice(fileName.lastIndexOf('.'))
           return firebase.storage().ref('donations/' + key + '.' + ext).put(payload.image)
         })
@@ -280,10 +280,24 @@ export default new Vuex.Store({
           })
         })
         .catch( (error) => {
-          console.log(error)
           commit('setLoading', false)
           commit('setError', error)
         })
+    },
+    editDonation ({commit}, payload){
+      let editedDonation = {}
+      if (payload.address) {
+        editedDonation.address = payload.address
+      }
+      if (payload.city) {
+        editedDonation.city = payload.city
+      }
+      if (payload.state) {
+        editedDonation.state = payload.state
+      }
+      if (payload.zip) {
+        editedDonation.zip = payload.zip
+      }
     }
   },
   getters: {
