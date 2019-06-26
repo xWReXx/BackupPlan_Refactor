@@ -9,7 +9,8 @@ export default new Vuex.Store({
   state: {
     user: null,
     loading: null,
-    error: null
+    error: null,
+    loadedDonations: []
   },
   mutations: {
     setUser (state, payload) {
@@ -24,6 +25,12 @@ export default new Vuex.Store({
       state.user.city = payload.city
       state.user.state = payload.state
       state.user.zip = payload.zip
+    },
+    setLoadedDonations (state, payload) {
+      state.loadedDonations = payload
+    },
+    addDonation (state, payload) {
+      state.loadedDonations.push(payload)
     },
     setLoading (state, payload) {
       state.loading = payload
@@ -177,7 +184,38 @@ export default new Vuex.Store({
           commit('setError', error)
         })
     },
+    loadDonations({commit}) {
+      commit('setLoading', true)
+      firebase.database().ref('donations').once('value')
+        .then((data) => {
+          const donations = []
+          const obj = data.val()
+          for (let key in obj) {
+            donations.push({
+              adress: obj[key].adress,
+              city: obj[key].city,
+              state: obj[key].state,
+              pets: obj[key].pets,
+              isFamilyFriendly: obj[key].isFamilyFriendly,
+              hasPubTransport: obj[key].hasPubTransport,
+              laundromat: obj[key].laundromat,
+              hasKitchen: obj[key].hasKitchen,
+              occupancy: obj[key].occupancy,
+              zipcode: obj[key].zipcode,
+              owner: obj[key].owner
+            })
+          }
+          commit('setLoading', false)
+          commit('setLoadedDonations', donations)
+        })
+        .catch((error) => { 
+          console.log(error)
+          commit('setLoading', false)
+        })
+    },
     addDonation({commit}, payload) {
+      let key
+      let imageUrl
       const newDonation = {
         adress: payload.adress,
         city: payload.city,
@@ -193,7 +231,27 @@ export default new Vuex.Store({
       }
       firebase.database().ref('/donations/').push(newDonation)
         .then((data) => {
-          console.log('post success ' + data)
+          key = data.key
+          return key
+        })
+        .then((key) => {
+          const fileName = payload.image.name
+          const ext = fileName.slice(fileName.lastIndexOf('.'))
+          return firebase.storage().ref('donations/' + key + '.' + ext).put(payload.image)
+        })
+        .then( data => {
+          return data.ref.getDownloadURL()
+            .then( downloadURL => {
+              imageUrl = downloadURL
+              return firebase.database().ref('meetups').child(key).update({imageUrl: downloadURL})
+            })
+        })
+        .then (() => {
+          commit('addDonation', {
+            ...payload, 
+            imageUrl: imageUrl,
+            id: key
+          })
         })
         .catch( (error) => {
           console.log(error)
