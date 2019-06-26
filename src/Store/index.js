@@ -10,40 +10,8 @@ export default new Vuex.Store({
     user: null,
     loading: null,
     error: null,
-    loadedDonations: [
-      {
-        adress: '5678 Main St.',
-        zip: '80232',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house1',
-        occupancy: 10
-      },
-      {
-        adress: '1234 Big Walk Way',
-        zip: '80231',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house2',
-        occupancy: 3
-      },
-      {
-        adress: '1234 Big Walk Way',
-        zip: '80233',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house3',
-        occupancy: 3
-      },
-      {
-        adress: '1234 Big Walk Way',
-        zip: '80234',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house4',
-        occupancy: 3
-      }
-    ]
+    loadedDonations: [],
+    myLoadedDonations: []
   },
   mutations: {
     setUser (state, payload) {
@@ -61,6 +29,9 @@ export default new Vuex.Store({
     },
     setLoadedDonations (state, payload) {
       state.loadedDonations = payload
+    },
+    setMyLoadedDonations (state, payload) {
+      state.myLoadedDonations = payload
     },
     addDonation (state, payload) {
       state.loadedDonations.push(payload)
@@ -169,7 +140,6 @@ export default new Vuex.Store({
       })
     },
     autoSignIn ({commit}, payload){
-      
       let userId = payload.uid
       firebase.database().ref('users').orderByChild('userId').equalTo(userId).on("value", function(snapshot) {
         snapshot.forEach( (data) => {
@@ -192,7 +162,8 @@ export default new Vuex.Store({
         state: payload.state,
         zip: payload.zip
       }
-      firebase.database().ref('users/' + userName).update(savedProfileChanges).then( () => {
+      firebase.database().ref('users/' + userName).update(savedProfileChanges)
+      .then( () => {
         commit('updateUserProfile', payload)
         commit('setLoading', false)
       })
@@ -250,6 +221,22 @@ export default new Vuex.Store({
           console.log(error)
           commit('setLoading', false)
         })
+    },
+    loadMyDonations ({commit, getters}) {
+      let myDonations = []
+      commit('setLoading', true)
+      const owner = getters.user.userName
+      console.log(owner + 'searching for donations')
+      firebase.database().ref('donations').orderByChild('owner').equalTo(owner).on('value', function (snapshot) {
+        snapshot.forEach((snapshotChild) => {
+          console.log('donations found')
+          const snapshotValue = snapshotChild.val()
+          myDonations.push(snapshotValue)
+          console.log(myDonations)
+        })
+        commit('setMyLoadedDonations', myDonations)
+        commit('setLoading', false)
+      })
     },
     addDonation({commit}, payload) {
       let key
@@ -311,6 +298,9 @@ export default new Vuex.Store({
     },
     loadedDonations (state) {
       return state.loadedDonations
+    },
+    myloadedDonations (state) {
+      return state.myLoadedDonations
     }
   }
 })

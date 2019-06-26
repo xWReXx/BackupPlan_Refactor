@@ -6,10 +6,10 @@
         <app-addDonation></app-addDonation>
       </v-flex>
       <v-flex mb-4 xs10>
-          <v-layout v-for='item in donations' :key='item.zip'>
+          <v-layout v-for='item in myDonations' :key='item.zip'>
             <v-flex mb-4 xs12 sm6 offset-sm3>
               <v-card >
-                <v-img class='white--text' height='200px' :src="require(`../assets/${item.img}.jpg`)">
+                <v-img class='white--text' height='200px' :src="item.imageUrl">
                   <v-container fill-height fluid>
                   </v-container>
                 </v-img>
@@ -43,50 +43,15 @@
 export default {
   data: () => ({
     drawer: null,
-    donations: [
-      {
-        adress: '5678 Main St.',
-        zip: '80232',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house1',
-        occupancy: 10
-      },
-      {
-        adress: '1234 Big Walk Way',
-        zip: '80231',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house2',
-        occupancy: 3
-      },
-      {
-        adress: '1234 Big Walk Way',
-        zip: '80233',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house3',
-        occupancy: 3
-      },
-      {
-        adress: '1234 Big Walk Way',
-        zip: '80234',
-        city: 'LakeWood ',
-        state: 'Colorado',
-        img: 'house4',
-        occupancy: 3
+  }),
+  computed: {
+      myDonations () {
+          return this.$store.getters.myloadedDonations
       }
-      // {
-      //   adress: '1234 Big Walk Way',
-      //   zip: '80235',
-      //   city: 'LakeWood ',
-      //   state: 'Colorado',
-      //   familyfriendly: true,
-      //   petFrienly: true,
-      //   img: '../assets/house.jpg'
-      // }
-    ]
-  })
+  },
+  created () {
+        this.$store.dispatch('loadMyDonations')
+    }
 }
 </script>
 
