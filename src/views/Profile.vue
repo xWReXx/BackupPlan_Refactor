@@ -1,9 +1,19 @@
 <template>
   <v-container fill-height>
+    <v-layout v-if="loading">
+      <v-flex xs12 class="text-xs-center">
+          <v-progress-circular
+              indeterminate
+              :width="7"
+              :size="70"
+              color="primary"
+            ></v-progress-circular>
+        </v-flex>
+    </v-layout>
     <v-layout row justify-center>
       <v-flex xs10 lg6>
         <v-card>
-          <v-img :src="profile.profileImageUrl" class='img'>
+          <v-img :src="profile.imageUrl" class='img'>
             <v-layout column fill-height>
               <v-spacer></v-spacer>
               <v-card-title class='white--text pl-5 pt-5'>
@@ -99,6 +109,9 @@ export default {
     computed: {
         profile () {
             return this.$store.getters.user
+        },
+        loading () {
+            return this.$store.getters.loading
         }
     },
     methods: {

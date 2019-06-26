@@ -103,6 +103,7 @@ export default {
             image: this.image
         }
         this.$store.dispatch('addDonation', newDonation)
+        this.donateModal = false
     },
     onPickFile() {
       this.$refs.fileInput.click()

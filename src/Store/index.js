@@ -36,6 +36,47 @@ export default new Vuex.Store({
     addDonation (state, payload) {
       state.loadedDonations.push(payload)
     },
+    editDonation (state, payload) {
+      const donation = state.myLoadedDonations.find( donation => {
+        return donation.id === payload.id
+      })
+      if (payload.address) {
+        donation.address = payload.address
+      }
+      if (payload.city) {
+        donation.city = payload.city
+      }
+      if (payload.state) {
+        donation.state = payload.state
+      }
+      if (payload.zip) {
+        donation.zip = payload.zip
+      }
+      if (payload.pets) {
+        donation.pets = payload.pets
+      }
+      if (payload.isFamilyFriendly) {
+        donation.isFamilyFriendly = payload.isFamilyFriendly
+      }
+      if (payload.hasPubTransport) {
+        donation.hasPubTransport = payload.hasPubTransport
+      }
+      if (payload.hasKitchen) {
+        donation.hasKitchen = payload.hasKitchen
+      }
+      if (payload.occupancy) {
+        donation.occupancy = payload.occupancy
+      }
+      if (payload.owner) {
+        donation.owner = payload.owner
+      }
+      if (payload.hAccess) {
+        donation.hAccess = payload.hAccess
+      }
+      if (payload.imageUrl) {
+        donation.imageUrl = payload.imageUrl
+      }
+    },
     setLoading (state, payload) {
       state.loading = payload
     },
@@ -81,7 +122,7 @@ export default new Vuex.Store({
                   state: payload.state,
                   zip: payload.zip,
                   email: payload.email,
-                  profileImageUrl: 'https://firebasestorage.googleapis.com/v0/b/backupplan-ab4c1.appspot.com/o/default-profile-pic.png?alt=media&token=9c25dd85-a2cb-4daf-bfd4-278ce580e368'
+                  imageUrl: 'https://firebasestorage.googleapis.com/v0/b/backupplan-ab4c1.appspot.com/o/default-profile-pic.png?alt=media&token=9c25dd85-a2cb-4daf-bfd4-278ce580e368'
                 }
                 commit('setUser', newUser)
                 firebase.database().ref('/users/' + slug).set(newUser)
@@ -182,7 +223,7 @@ export default new Vuex.Store({
         .then(downloadUrl => {
           imageUrl = downloadUrl
           const userName = getters.user.userName
-          firebase.database().ref('users/' + userName).update({profileImageUrl: imageUrl})
+          firebase.database().ref('users/' + userName).update({imageUrl: imageUrl})
         })
         .then( () => {
           commit('setLoading', false)
@@ -211,7 +252,8 @@ export default new Vuex.Store({
               occupancy: obj[key].occupancy,
               zipcode: obj[key].zipcode,
               owner: obj[key].owner,
-              imageUrl: obj[key].imageUrl
+              imageUrl: obj[key].imageUrl,
+              id: key
             })
           }
           commit('setLoading', false)
@@ -223,21 +265,17 @@ export default new Vuex.Store({
         })
     },
     loadMyDonations ({commit, getters}) {
-      let myDonations = []
       commit('setLoading', true)
-      const owner = getters.user.userName
-      firebase.database().ref('donations').orderByChild('owner').equalTo(owner).on('value', function (snapshot) {
-        snapshot.forEach((snapshotChild) => {
-          const snapshotValue = snapshotChild.val()
-          myDonations.push(snapshotValue)
-        })
+      let myDonations = []
+      const donations = getters.loadedDonations 
+      const userOwner = getters.user.userName
+      donations.forEach( donation => {
+        if (donation.owner === userOwner) {
+          myDonations.push(donation)
+        }
+      })
         commit('setMyLoadedDonations', myDonations)
         commit('setLoading', false)
-      })
-      .catch((error) => {
-        commit('setLoading', false)
-        commit('setError', error)
-      })
     },
     addDonation({commit}, payload) {
       let key
@@ -286,6 +324,8 @@ export default new Vuex.Store({
     },
     editDonation ({commit}, payload){
       let editedDonation = {}
+      let imageUrl
+      const donationId = payload.id
       if (payload.address) {
         editedDonation.address = payload.address
       }
@@ -298,6 +338,47 @@ export default new Vuex.Store({
       if (payload.zip) {
         editedDonation.zip = payload.zip
       }
+      if (payload.pets) {
+        editedDonation.pets = payload.pets
+      }
+      if (payload.isFamilyFriendly) {
+        editedDonation.isFamilyFriendly = payload.isFamilyFriendly
+      }
+      if (payload.hasPubTransport) {
+        editedDonation.hasPubTransport = payload.hasPubTransport
+      }
+      if (payload.hasKitchen) {
+        editedDonation.hasKitchen = payload.hasKitchen
+      }
+      if (payload.occupancy) {
+        editedDonation.occupancy = payload.occupancy
+      }
+      if (payload.laundromat) {
+        editedDonation.laundromat = payload.laundromat
+      }
+      if (payload.hAccess) {
+        editedDonation.hAccess = payload.hAccess
+      }
+      editedDonation.id = donationId
+      firebase.database().ref('/donations/' + donationId).update(editedDonation)
+        .then(() => {
+          const fileName = payload.image.name
+          const ext = fileName.slice(fileName.lastIndexOf('.'))
+          return firebase.storage().ref('donations/' + donationId + '.' + ext).put(payload.image)
+        })
+        .then( (data) => {
+          return data.ref.getDownloadURL()
+            .then( (downloadURL) => {
+              imageUrl = downloadURL
+              return firebase.database().ref('donations').child(donationId).update({imageUrl: downloadURL})
+            })
+          })
+        .then (() => {
+          commit('editDonation', {
+            ...payload, 
+            imageUrl: imageUrl,
+          })
+        })
     }
   },
   getters: {

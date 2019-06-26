@@ -5,7 +5,7 @@
         <h2 class='display-1 font-weight-bold mb-2'>Do you have a plan?</h2>
       </v-flex>
       <v-flex mb-4 xs10>
-          <v-layout v-for='item in donations' :key='item.zip'>
+          <v-layout v-for='item in donations' :key='item.id'>
             <v-flex mb-4 xs12 sm6 offset-sm3>
               <v-card >
                 <v-img class='white--text' height='200px' :src="item.imageUrl">
@@ -14,7 +14,7 @@
                 </v-img>
                 <v-card-title>
                   <div>
-                    <span class='grey--text'>Number 10</span>
+                    <span class='grey--text'>Donated by {{item.owner}}</span>
                     <br>
                     <span>{{item.address}}</span>
                     <br>
@@ -47,9 +47,6 @@ export default {
             return this.$store.getters.loadedDonations
         }
     },
-    created () {
-        this.$store.dispatch('loadDonations')
-    }
 }
 </script>
 

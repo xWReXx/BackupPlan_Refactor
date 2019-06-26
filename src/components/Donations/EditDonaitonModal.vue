@@ -25,18 +25,18 @@
                 <v-text-field v-model='occupancy' label='Max Occupancy*' required></v-text-field>
               </v-flex>
               <v-flex xs12 sm6>
-                <v-checkbox v-model="pets" label='Pets' value='Pets'></v-checkbox>
-                <v-checkbox v-model="isFamilyFriendly" label='Family Friendly' value='Family Friendly'></v-checkbox>
-                <v-checkbox v-model="hasPubTransport" label='Public Transportation' value='Public Transportation'></v-checkbox>
-                <v-checkbox v-model="hAccess" label='Handicapped Acces' value='Handicapped Acces'></v-checkbox>
-                <v-checkbox v-model="hasWasherDryer" label='Washer Dryer' value='Washer Dryer'></v-checkbox>
-                <v-checkbox v-model="laundromat" label='Laundromat Near by' value='Laundromat Near by'></v-checkbox>
-                <v-checkbox v-model="hasKitchen" label='Kitchen Access' value='Kitchen Access'></v-checkbox>
+                <v-checkbox v-model="pets" label='Pets'></v-checkbox>
+                <v-checkbox v-model="isFamilyFriendly" label='Family Friendly'></v-checkbox>
+                <v-checkbox v-model="hasPubTransport" label='Public Transportation'></v-checkbox>
+                <v-checkbox v-model="hAccess" label='Handicapped Acces'></v-checkbox>
+                <v-checkbox v-model="hasWasherDryer" label='Washer Dryer'></v-checkbox>
+                <v-checkbox v-model="laundromat" label='Laundromat Near by'></v-checkbox>
+                <v-checkbox v-model="hasKitchen" label='Kitchen Access'></v-checkbox>
               </v-flex>
             </v-layout>
             <v-layout row>
                 <v-flex xs12 sm6 offset-sm3>
-                    <v-btn raised class="primary" @click="onPickFile">Upload Image</v-btn>
+                    <v-btn raised class="red" @click="onPickFile">Upload Image</v-btn>
                     <input
                         type="file"
                         style="display: none"
@@ -51,7 +51,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color='red' to="/donate1" flat @click='donateModal = false'>Save Changes</v-btn>
+          <v-btn color='red' to="/mydonations" flat @click='onSubmit'>Save Changes</v-btn>
           <v-btn color='red' flat @click='donateModal = false'>Cancel</v-btn>
         </v-card-actions>
       </v-card>
@@ -61,7 +61,7 @@
 
 <script>
 export default {
-
+    props: ['donationId'],
     data: () => ({
         donateModal: false,
         address: '',
@@ -75,7 +75,9 @@ export default {
         laundromat: false,
         hasKitchen: false,
         occupancy: '',
-        zipcode: ''
+        zipcode: '',
+        imageUrl: null,
+        image: null,
     }),
     methods: {
         onSubmit() {
@@ -90,9 +92,12 @@ export default {
             hasKitchen: this.hasKitchen,
             occupancy: this.occupancy,
             zipcode: this.zipcode,
-            owner: this.userName
+            owner: this.userName,
+            id: this.donationId,
+            image: this.image
         }
         this.$store.dispatch('editDonation', newDonation)
+        this.donateModal = false
         },
         onPickFile() {
             this.$refs.fileInput.click()
