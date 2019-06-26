@@ -10,7 +10,40 @@ export default new Vuex.Store({
     user: null,
     loading: null,
     error: null,
-    loadedDonations: []
+    loadedDonations: [
+      {
+        adress: '5678 Main St.',
+        zip: '80232',
+        city: 'LakeWood ',
+        state: 'Colorado',
+        img: 'house1',
+        occupancy: 10
+      },
+      {
+        adress: '1234 Big Walk Way',
+        zip: '80231',
+        city: 'LakeWood ',
+        state: 'Colorado',
+        img: 'house2',
+        occupancy: 3
+      },
+      {
+        adress: '1234 Big Walk Way',
+        zip: '80233',
+        city: 'LakeWood ',
+        state: 'Colorado',
+        img: 'house3',
+        occupancy: 3
+      },
+      {
+        adress: '1234 Big Walk Way',
+        zip: '80234',
+        city: 'LakeWood ',
+        state: 'Colorado',
+        img: 'house4',
+        occupancy: 3
+      }
+    ]
   },
   mutations: {
     setUser (state, payload) {
@@ -168,7 +201,8 @@ export default new Vuex.Store({
         commit('setError', error)
       })
     },
-    uploadProfileImage ({getters}, payload) {
+    uploadProfileImage ({commit, getters}, payload) {
+      commit('setLoading', true)
       let imageUrl
       firebase.storage().ref('/' + getters.user.userName + '/profilePicture/' + payload.name).put(payload.file)
         .then(uploadTaskSnapshot => {
@@ -178,6 +212,9 @@ export default new Vuex.Store({
           imageUrl = downloadUrl
           const userName = getters.user.userName
           firebase.database().ref('users/' + userName).update({profileImageUrl: imageUrl})
+        })
+        .then( () => {
+          commit('setLoading', false)
         })
         .catch( (error) => {
           commit('setLoading', false)
@@ -202,7 +239,8 @@ export default new Vuex.Store({
               hasKitchen: obj[key].hasKitchen,
               occupancy: obj[key].occupancy,
               zipcode: obj[key].zipcode,
-              owner: obj[key].owner
+              owner: obj[key].owner,
+              imageUrl: obj[key].imageUrl
             })
           }
           commit('setLoading', false)
@@ -236,6 +274,7 @@ export default new Vuex.Store({
         })
         .then((key) => {
           const fileName = payload.image.name
+          console.log(fileName)
           const ext = fileName.slice(fileName.lastIndexOf('.'))
           return firebase.storage().ref('donations/' + key + '.' + ext).put(payload.image)
         })
@@ -243,7 +282,7 @@ export default new Vuex.Store({
           return data.ref.getDownloadURL()
             .then( downloadURL => {
               imageUrl = downloadURL
-              return firebase.database().ref('meetups').child(key).update({imageUrl: downloadURL})
+              return firebase.database().ref('donations').child(key).update({imageUrl: downloadURL})
             })
         })
         .then (() => {
@@ -269,6 +308,9 @@ export default new Vuex.Store({
     },
     error (state) {
       return state.error
+    },
+    loadedDonations (state) {
+      return state.loadedDonations
     }
   }
 })

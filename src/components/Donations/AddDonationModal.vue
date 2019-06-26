@@ -34,6 +34,18 @@
                 <v-checkbox v-model="hasKitchen" label='Kitchen Access' value='Kitchen Access'></v-checkbox>
               </v-flex>
             </v-layout>
+            <v-layout row>
+                <v-flex xs12 sm6 offset-sm3>
+                    <v-btn raised class="red" @click="onPickFile">Upload Image</v-btn>
+                    <input
+                        type="file"
+                        style="display: none"
+                        ref="fileInput"
+                        accept="image/*"
+                        @change="onFilePicked"
+                    >
+                </v-flex>
+            </v-layout>
           </v-container>
           <small>*indicates required field</small>
         </v-card-text>
@@ -63,8 +75,10 @@ export default {
     hasWasherDryer: false,
     laundromat: false,
     hasKitchen: false,
-    occupancy: '',
-    zipcode: ''
+    occupancy: 0,
+    zipcode: '',
+    imageUrl: null,
+    image: null
   }),
   computed: {
       userName() {
@@ -72,8 +86,8 @@ export default {
       }
   },
   methods: {
-      onSubmit() {
-          const newDonation = {
+    onSubmit() {
+        const newDonation = {
             adress: this.adress,
             city: this.city,
             state: this.state,
@@ -84,10 +98,28 @@ export default {
             hasKitchen: this.hasKitchen,
             occupancy: this.occupancy,
             zipcode: this.zipcode,
-            owner: this.userName
-          }
+            owner: this.userName,
+            imageUrl: this.imageUrl,
+            image: this.image
+        }
         this.$store.dispatch('addDonation', newDonation)
-      }
+    },
+    onPickFile() {
+      this.$refs.fileInput.click()
+    },
+    onFilePicked(event) {
+        const files = event.target.files
+        let filename = files[0].name
+        if (filename.lastIndexOf(".") <= 0) {
+            return alert("Please add a valid file!")
+        }
+        const fileReader = new FileReader()
+        fileReader.addEventListener("load", () => {
+            this.imageUrl = fileReader.result
+        })
+        fileReader.readAsDataURL(files[0])
+        this.image = files[0]
+    }
   }
 }
 </script>

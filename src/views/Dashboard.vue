@@ -6,7 +6,7 @@
       </v-flex>
       <v-flex mb-4 xs6>
         <h2 class='display-1 font-weight-bold mb-2'>Dashboard</h2>
-        <v-btn block color="red" to='/makeplans' dark>SEARCH FOR A PLAN</v-btn>
+        <v-btn block color="red" to='/donations' dark>SEARCH FOR A PLAN</v-btn>
         <v-btn block color="red" to='/donate' dark>DONATE SOME SPACE</v-btn>
         <v-btn block color="red" dark to="/profile">YOUR PROFILE</v-btn>
         <v-btn block color="red" dark>INSTALL</v-btn>
