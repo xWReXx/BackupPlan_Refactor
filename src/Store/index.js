@@ -315,11 +315,12 @@ export default new Vuex.Store({
             })
         })
         .then (() => {
-          commit('addDonation', {
+          const newDonation = {
             ...payload, 
             imageUrl: imageUrl,
             id: key
-          })
+          }
+          commit('addDonation', newDonation)
         })
         .catch( (error) => {
           commit('setLoading', false)
