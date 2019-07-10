@@ -77,6 +77,10 @@ export default new Vuex.Store({
         donation.imageUrl = payload.imageUrl
       }
     },
+    deleteDonation (state, payload) {
+      var index = state.myLoadedDonations.findIndex(myDonation => myDonation.id === payload);
+      state.myLoadedDonations.splice(index, 1)
+    },
     setLoading (state, payload) {
       state.loading = payload
     },
@@ -379,6 +383,18 @@ export default new Vuex.Store({
             imageUrl: imageUrl,
           })
         })
+    },
+    removeDonation({commit}, payload){
+     const id = payload
+     commit('setLoading', true)
+     firebase.database().ref('/donations/' + id).remove()
+      .then(() =>{
+        commit('deleteDonation', id)
+        commit('setLoading', false)
+      })
+      .catch( (error) => {
+        commit('setError', error)
+      })
     }
   },
   getters: {

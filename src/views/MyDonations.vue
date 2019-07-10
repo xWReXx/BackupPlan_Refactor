@@ -38,7 +38,7 @@
                 </v-card-title>
                 <v-card-actions>
                   <app-editDonation :donationId='item.id'></app-editDonation>
-                  <v-btn flat color='red'>Remove</v-btn>
+                  <v-btn flat color='red' @click='removeDonation(item.id)'>Remove</v-btn>
                 </v-card-actions>
               </v-card>
             </v-flex>
@@ -64,6 +64,11 @@ export default {
     },
     created () {
         this.$store.dispatch('loadMyDonations')
+    },
+    methods: {
+      removeDonation (id) {
+        this.$store.dispatch('removeDonation', id)
+      }
     }
 }
 </script>
