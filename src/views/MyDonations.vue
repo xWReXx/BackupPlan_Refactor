@@ -25,7 +25,7 @@
                 </v-img>
                 <v-card-title>
                   <div>
-                    <span class='grey--text'>Number 10</span>
+                    <span class='grey--text'>{{item.city}}</span>
                     <br>
                     <span>{{item.address}}</span>
                     <br>

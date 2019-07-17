@@ -35,6 +35,7 @@ export default new Vuex.Store({
     },
     addDonation (state, payload) {
       state.loadedDonations.push(payload)
+      state.myLoadedDonations.push(payload)
     },
     editDonation (state, payload) {
       const donation = state.myLoadedDonations.find( donation => {
@@ -321,6 +322,8 @@ export default new Vuex.Store({
             id: key
           }
           commit('addDonation', newDonation)
+          commit('setLoading', false)
+
         })
         .catch( (error) => {
           commit('setLoading', false)
