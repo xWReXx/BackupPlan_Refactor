@@ -78,8 +78,10 @@ export default new Vuex.Store({
       }
     },
     deleteDonation (state, payload) {
-      var index = state.myLoadedDonations.findIndex(myDonation => myDonation.id === payload);
-      state.myLoadedDonations.splice(index, 1)
+      var myIndex = state.myLoadedDonations.findIndex(myDonation => myDonation.id === payload)
+      var loadedIndex = state.myLoadedDonations.findIndex(myDonation => myDonation.id === payload)
+      state.myLoadedDonations.splice(myIndex, 1)
+      state.loadedDonations.splice(loadedIndex, 1)
     },
     setLoading (state, payload) {
       state.loading = payload
@@ -237,7 +239,7 @@ export default new Vuex.Store({
           commit('setError', error)
         })
     },
-    loadDonations({commit}) {
+    loadDonations({commit, getters}) {
       commit('setLoading', true)
       firebase.database().ref('donations').once('value')
         .then((data) => {
@@ -262,24 +264,22 @@ export default new Vuex.Store({
           }
           commit('setLoading', false)
           commit('setLoadedDonations', donations)
+        }).then( () => {
+          let myDonations = []
+          const donations = getters.loadedDonations 
+          const userOwner = getters.user.userName
+          donations.forEach( donation => {
+            if (donation.owner === userOwner) {
+              myDonations.push(donation)
+            }
+          })
+            commit('setMyLoadedDonations', myDonations)
+            commit('setLoading', false)
         })
         .catch((error) => {
           commit('setLoading', false)
           commit('setError', error)
         })
-    },
-    loadMyDonations ({commit, getters}) {
-      commit('setLoading', true)
-      let myDonations = []
-      const donations = getters.loadedDonations 
-      const userOwner = getters.user.userName
-      donations.forEach( donation => {
-        if (donation.owner === userOwner) {
-          myDonations.push(donation)
-        }
-      })
-        commit('setMyLoadedDonations', myDonations)
-        commit('setLoading', false)
     },
     addDonation({commit}, payload) {
       let key

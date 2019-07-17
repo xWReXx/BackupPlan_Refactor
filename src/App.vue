@@ -38,7 +38,7 @@ export default {
       { icon: 'account_box', text: 'Profile', url: '/profile' },
       { icon: 'group_add', text: 'My Donations', url: '/mydonations' },
       { icon: 'public', text: 'Update Public Status', url: '/status/:id' },
-      { icon: 'directions_run', text: 'Make Backup Plans', url: '/makeplans' },
+      { icon: 'directions_run', text: 'Make Backup Plans', url: '/donations' },
       { icon: 'settings', text: 'Dashboard', url: '/dashboard' }
     ]
   }),

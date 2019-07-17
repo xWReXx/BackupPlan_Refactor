@@ -62,9 +62,6 @@ export default {
             return this.$store.getters.loading
         }
     },
-    created () {
-        this.$store.dispatch('loadMyDonations')
-    },
     methods: {
       removeDonation (id) {
         this.$store.dispatch('removeDonation', id)
